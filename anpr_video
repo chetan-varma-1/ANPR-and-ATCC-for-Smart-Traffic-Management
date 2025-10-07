@@ -236,3 +236,107 @@ class PlateFinder:
 					return after_check_plate_img, characters_on_plate, coordinates 
 		
 		return None, None, None
+
+
+
+	def find_possible_plates(self, input_img): 
+		
+		""" 
+		Finding all possible contours that can be plates 
+		"""
+		plates = [] 
+		self.char_on_plate = [] 
+		self.corresponding_area = [] 
+
+		self.after_preprocess = self.preprocess(input_img) 
+		possible_plate_contours = self.extract_contours(self.after_preprocess) 
+
+		for cnts in possible_plate_contours: 
+			plate, characters_on_plate, coordinates = self.check_plate(input_img, cnts) 
+			
+			if plate is not None: 
+				plates.append(plate) 
+				self.char_on_plate.append(characters_on_plate) 
+				self.corresponding_area.append(coordinates) 
+
+		if (len(plates) > 0): 
+			return plates 
+		
+		else: 
+			return None
+
+	def find_characters_on_plate(self, plate): 
+
+		charactersFound = segment_chars(plate, 400) 
+		if charactersFound: 
+			return charactersFound 
+
+	# PLATE FEATURES 
+	def ratioCheck(self, area, width, height): 
+		
+		min = self.min_area 
+		max = self.max_area 
+
+		ratioMin = 3
+		ratioMax = 6
+
+		ratio = float(width) / float(height) 
+		
+		if ratio < 1: 
+			ratio = 1 / ratio 
+		
+		if (area < min or area > max) or (ratio < ratioMin or ratio > ratioMax): 
+			return False
+		
+		return True
+
+	def preRatioCheck(self, area, width, height): 
+		
+		min = self.min_area 
+		max = self.max_area 
+
+		ratioMin = 2.5
+		ratioMax = 7
+
+		ratio = float(width) / float(height) 
+		
+		if ratio < 1: 
+			ratio = 1 / ratio 
+
+		if (area < min or area > max) or (ratio < ratioMin or ratio > ratioMax): 
+			return False
+		
+		return True
+
+	def validateRatio(self, rect): 
+		(x, y), (width, height), rect_angle = rect 
+
+		if (width > height): 
+			angle = -rect_angle 
+		else: 
+			angle = 90 + rect_angle 
+
+		if angle > 15: 
+			return False
+		
+		if (height == 0 or width == 0): 
+			return False
+
+		area = width * height 
+		
+		if not self.preRatioCheck(area, width, height): 
+			return False
+		else: 
+			return True
+
+
+class OCR: 
+	
+	def __init__(self, modelFile, labelFile): 
+		
+		self.model_file = modelFile 
+		self.label_file = labelFile 
+		self.label = self.load_label(self.label_file) 
+		self.graph = self.load_graph(self.model_file) 
+		self.sess = tf.compat.v1.Session(graph=self.graph, 
+										config=tf.compat.v1.ConfigProto()) 
