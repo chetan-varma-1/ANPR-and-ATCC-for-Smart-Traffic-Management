@@ -391,6 +391,9 @@ class OCR: #optical character recogn
 			plate=plate+self.label_image(self.convert_tensor(img,imageSizeOutput))
 			
 		return plate,len(plate)
+	import dbconnection 
+
+
 	
 		
 
