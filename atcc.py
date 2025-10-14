@@ -35,10 +35,49 @@ def determine_signal(total_vehicles):
         return "Red", (0,0,255), 0 
 
 #function to load videos from a folder
-def load_video_from_floder(video_folder):
+def load_video_from_folder(video_folder):
     """Load all video files from the provided folder"""
     video_files=[] #{"path": "C:\Users\cheta\Desktop\Automatic Number Plate Recognition (ANPR) _ Vehicle Number Plate Recognition (1).mp4","road_name":"Automatic Number Plate Recognition (ANPR) _ Vehicle Number Plate Recognition (1).mp4"}
     for filename in os.listdir(video_folder):
         if filename.endswidth(".mp4"):
             video_files.append({"path":os.path.join(video_folder, filename),"road_name":filename})
     return video_files
+
+#function to process individual frames
+def process_frame(frame,model,road_name,directions):#{left:2,right:3}
+    '''
+    process a video frame: Detect objects,classify direction, and overlay information.
+    Args:
+    Frame: The input video frame.
+    model: The YOLO Model for object detection
+    road_name: name of the file .
+    directions: Dictionary to count vehicle directions.
+
+    Returns: Processed frame with detection overlays and vehicle count per direction.
+    '''
+    results = model(frame)
+    detections = results[0].boxes.data.cpu().numpy() #{x1,y1,x2,y2, confidence(0-1), class_id #0-bikes,1-cars,2-trucks}
+    vehicle_count= {"car":0,"truck":0,"motorcycle":0,"bus":0}
+    
+    for det in detections:
+        x1, y1, x2, y2, conf , class_id = det
+        class_id =int(class_id)
+        label = model.names[class_id]  #  ["car","truck","motorcycle","bus"]
+        if label in vehicle_count:
+            vehicle_count[label]+=1
+            center_x = (x1+x2)/2
+            if center_x < frame.shape[1]/2:
+                directions["left"] += 1
+            else:
+                directions["right"]+= 1
+            
+            color = (0,255,0) if conf > 0.5 else (0,0,255) #bgr
+            cv2.rectangle(frame,(int(x1),int(y1)),(int(x2),int(y2)),color,2) 
+            cv2.putText(frame,f"{label}{conf:.2f}",(int(x1),int(y1)-10),cv2.FONT_HERSHEY_SIMPLEX,0.5,color,2)
+
+            # Add file name and vehicle information to the frame
+            cv2.putText(frame,f"File :{road_name}",(10,20),cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),2)
+            y_offf
+
+
+
