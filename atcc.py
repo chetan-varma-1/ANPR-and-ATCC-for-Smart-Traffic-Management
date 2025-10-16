@@ -77,7 +77,52 @@ def process_frame(frame,model,road_name,directions):#{left:2,right:3}
 
             # Add file name and vehicle information to the frame
             cv2.putText(frame,f"File :{road_name}",(10,20),cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),2)
-            y_offf
+            y_offset=50
+            for direction,counts in directions.items():
+                cv2.putText(frame,f"{direction.captalize():{counts}}",(10,y_offset),cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),2)
+                y_offset+=25
+            total_vehicles =sum(vehicle_count.values())
+            cv2.putText(frame,f"Total vehicles:{total_vehicles}",(10,y_offset),cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),2)
+            y_offset+=25
+            #Determine signal and overlay the traffic light
+            signal_color,signal_rgb,light_state = determine_signal(total_vehicles)
+            cv2.putText(frame,f"Signal:{signal_color}",(10,y_offset),cv2.FONT_HERSHEY_SIMPLEX,0.8,signal_rgb,2)
+
+            #adjust positiob of traffic light based on frame size
+
+            traffic_light_position =(frame.shape[1]-100,20)#400-100 =300
+            simulate_traffic_light(frame,light_state,position=traffic_light_position)
+            return frame,vehicle_count
+#function to process video 
+def process_atcc_video(input_files,model):
+    """proces video from the input files and display results"""
+    caps = []
+    road_name =[]  
+
+    for file_path in input_files:
+        cap = cv2.VideoCapture(file_path)
+        if not cap.isOpened():
+            print(f"Erros: Could not open video stream for{file_path}.")
+            continue
+        caps.append(cap) # c:/program files/desktop/atcc/video1
+        road_name.append(os.path.basename(file_path))
+
+        #Define the target size for all frames (ensure consistent dimensions for stacking)
+        target_width,target_height=640,480
+
+        while True:
+            process_frame = []
+            for i,cap in enumerate(caps):
+                rect,frame =cap.read()
+            if not rect:# if not false
+                print(f"End of video stream for {road_name[i]}.")
+                caps[i].release()
+                continue
+
+
+            
+
+            
 
 
 
