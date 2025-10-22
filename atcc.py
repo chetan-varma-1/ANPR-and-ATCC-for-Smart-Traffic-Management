@@ -173,8 +173,8 @@ def process_atcc_videos(video_input, model):
 if __name__ == "__main__":
     model = YOLO("yolov8n.pt")
     # Single video:
-    #video_input = r"C:\Users\cheta\Desktop\4\pexels-george-morina-5222550 (2160p).mp4"
+    video_input = r"C:\Users\cheta\Desktop\4\pexels-george-morina-5222550 (2160p).mp4"
 
     #Folder of videos:
-    video_input =r"C:\Users\cheta\Desktop\4"
+    #video_input =r"C:\Users\cheta\Desktop\4"
     process_atcc_videos(video_input, model)
