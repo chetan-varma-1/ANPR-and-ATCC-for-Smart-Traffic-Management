@@ -77,5 +77,5 @@ def detect_triple_riding(video_path):
 
 
 # Input video path
-video_path = r"C:\Users\cheta\Desktop\ANPR and ATCC for Smart Traffic Management\helmet detection videos\istockphoto-1582827387-640_adpp_is.mp4"
+video_path = r"C:\Users\cheta\Desktop\ANPR and ATCC for Smart Traffic Management\sample detection videos\5638-183850414_small.mp4"
 detect_triple_riding(video_path)
